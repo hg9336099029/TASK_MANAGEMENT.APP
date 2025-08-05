@@ -6,11 +6,11 @@ export const createTask = asyncHandler(async (req, res) => {
     const { title, description, dueDate, priority, status } = req.body;
 
     if (!title || title.trim() === "") {
-      res.status(400).json({ message: "Title is required!" });
+      return res.status(400).json({ message: "Title is required!" });
     }
 
     if (!description || description.trim() === "") {
-      res.status(400).json({ message: "Description is required!" });
+      return res.status(400).json({ message: "Description is required!" });
     }
 
     const task = new TaskModel({
@@ -24,10 +24,13 @@ export const createTask = asyncHandler(async (req, res) => {
 
     await task.save();
 
-    res.status(201).json(task);
+    return res.status(201).json(task);
   } catch (error) {
     console.log("Error in createTask: ", error.message);
-    res.status(500).json({ message: error.message });
+    if (error.code === 11000) {
+        return res.status(400).json({ message: "A task with this title already exists." });
+    }
+    return res.status(500).json({ message: "An unexpected error occurred." });
   }
 });
 
@@ -155,7 +158,7 @@ export const deleteAllTasks = asyncHandler(async (req, res) => {
     }
 
     // check if the user is the owner of the task
-    if (!tasks.user.equals(userId)) {
+    if (tasks.length > 0 && !tasks[0].user.equals(userId)) {
       res.status(401).json({ message: "Not authorized!" });
     }
 
