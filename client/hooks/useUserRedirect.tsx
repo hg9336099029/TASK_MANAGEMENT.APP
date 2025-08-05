@@ -8,7 +8,7 @@ const useRedirect = (redirect: string) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user || !user.email) {
+    if (!user || !user._id) {
       router.push(redirect);
     }
 

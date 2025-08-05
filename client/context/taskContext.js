@@ -1,3 +1,6 @@
+
+
+
 import axios from "axios";
 import React, { createContext, useEffect } from "react";
 import { useUserContext } from "./userContext";
@@ -5,7 +8,7 @@ import toast from "react-hot-toast";
 
 const TasksContext = createContext();
 
-const serverUrl = "https://taskfyer.onrender.com/api/v1";
+const serverUrl = "http://localhost:8000/api/v1";
 
 export const TasksProvider = ({ children }) => {
   const userId = useUserContext().user._id;
@@ -117,6 +120,20 @@ export const TasksProvider = ({ children }) => {
     }
   };
 
+  const deleteAllTasks = async () => {
+    setLoading(true);
+    try {
+      await axios.delete(`${serverUrl}/tasks`);
+      setTasks([]);
+      toast.success("All tasks deleted successfully");
+    } catch (error) {
+      console.log("Error deleting all tasks", error);
+      toast.error("Failed to delete all tasks");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInput = (name) => (e) => {
     if (name === "setTask") {
       setTask(e);
@@ -148,6 +165,7 @@ export const TasksProvider = ({ children }) => {
         createTask,
         updateTask,
         deleteTask,
+        deleteAllTasks,
         priority,
         setPriority,
         handleInput,
