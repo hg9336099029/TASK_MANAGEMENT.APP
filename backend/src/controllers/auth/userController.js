@@ -51,7 +51,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const token = generateToken(user._id);
 
   // send back the user and token in the response to the client
-  // res.cookie("token", token, getCookieOptions());
+  res.cookie("token", token, getCookieOptions());
 
   if (user) {
     const { _id, name, email, role, photo, bio, isVerified } = user;
@@ -105,7 +105,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     const { _id, name, email, role, photo, bio, isVerified } = userExists;
 
     // set the token in the cookie
-  //res.cookie("token", token, getCookieOptions());
+    //res.cookie("token", token, getCookieOptions());
 
     // send back the user and token in the response to the client
     res.status(200).json({

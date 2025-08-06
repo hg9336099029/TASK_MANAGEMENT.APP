@@ -1,16 +1,12 @@
-
-
-
 import axios from "axios";
 import React, { createContext, useEffect } from "react";
 import { useUserContext } from "./userContext";
 import toast from "react-hot-toast";
-import Cookies from "js-cookie";
 
 const TasksContext = createContext();
 
 const serverUrl = "https://task-management-app-2-0a9j.onrender.com/api/v1";
-
+ //const serverUrl = "http://localhost:8000/api/v1";
 export const TasksProvider = ({ children }) => {
   const userId = useUserContext().user._id;
 
@@ -23,7 +19,6 @@ export const TasksProvider = ({ children }) => {
   const [activeTask, setActiveTask] = React.useState(null);
   const [modalMode, setModalMode] = React.useState("");
   const [profileModal, setProfileModal] = React.useState(false);
-  const token = Cookies.get("token");
 
   const openModalForAdd = () => {
     setModalMode("add");
@@ -49,17 +44,14 @@ export const TasksProvider = ({ children }) => {
     setTask({});
   };
 
-  // get tasks
+  const authConfig = {
+    withCredentials: true,
+  };
+
   const getTasks = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${serverUrl}/tasks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
-
+      const response = await axios.get(`${serverUrl}/tasks`, authConfig);
       setTasks(response.data.tasks);
     } catch (error) {
       console.log("Error getting tasks", error);
@@ -67,17 +59,10 @@ export const TasksProvider = ({ children }) => {
     setLoading(false);
   };
 
-  // get task
   const getTask = async (taskId) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${serverUrl}/task/${taskId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
-
+      const response = await axios.get(`${serverUrl}/task/${taskId}`, authConfig);
       setTask(response.data);
     } catch (error) {
       console.log("Error getting task", error);
@@ -88,15 +73,7 @@ export const TasksProvider = ({ children }) => {
   const createTask = async (task) => {
     setLoading(true);
     try {
-      const res = await axios.post(`${serverUrl}/task/create`, task, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
-
-      console.log("Task created", res.data);
-
+      const res = await axios.post(`${serverUrl}/task/create`, task, authConfig);
       setTasks([...tasks, res.data]);
       toast.success("Task created successfully");
     } catch (error) {
@@ -108,54 +85,32 @@ export const TasksProvider = ({ children }) => {
   const updateTask = async (task) => {
     setLoading(true);
     try {
-      const res = await axios.patch(`${serverUrl}/task/${task._id}`, task, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
-
-      // update the task in the tasks array
-      const newTasks = tasks.map((tsk) => {
-        return tsk._id === res.data._id ? res.data : tsk;
-      });
-
-      toast.success("Task updated successfully");
-
+      const res = await axios.patch(`${serverUrl}/task/${task._id}`, task, authConfig);
+      const newTasks = tasks.map((tsk) => tsk._id === res.data._id ? res.data : tsk);
       setTasks(newTasks);
+      toast.success("Task updated successfully");
     } catch (error) {
       console.log("Error updating task", error);
     }
+    setLoading(false);
   };
 
   const deleteTask = async (taskId) => {
     setLoading(true);
     try {
-      await axios.delete(`${serverUrl}/task/${taskId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
-
-      // remove the task from the tasks array
+      await axios.delete(`${serverUrl}/task/${taskId}`, authConfig);
       const newTasks = tasks.filter((tsk) => tsk._id !== taskId);
-
       setTasks(newTasks);
     } catch (error) {
       console.log("Error deleting task", error);
     }
+    setLoading(false);
   };
 
   const deleteAllTasks = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${serverUrl}/tasks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true, // optional, agar cookies bhi bhejni ho toh
-      });
+      await axios.delete(`${serverUrl}/tasks`, authConfig);
       setTasks([]);
       toast.success("All tasks deleted successfully");
     } catch (error) {
@@ -174,17 +129,12 @@ export const TasksProvider = ({ children }) => {
     }
   };
 
-  // get completed tasks
   const completedTasks = tasks.filter((task) => task.completed);
-
-  // get pending tasks
   const activeTasks = tasks.filter((task) => !task.completed);
 
   useEffect(() => {
     getTasks();
   }, [userId]);
-
-  console.log("Active tasks", activeTasks);
 
   return (
     <TasksContext.Provider
@@ -192,7 +142,6 @@ export const TasksProvider = ({ children }) => {
         tasks,
         loading,
         task,
-        tasks,
         getTask,
         createTask,
         updateTask,
