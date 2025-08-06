@@ -5,6 +5,7 @@ import connect from "./src/db/connect.js";
 import cookieParser from "cookie-parser";
 import fs from "node:fs";
 import errorHandler from "./src/helpers/errorhandler.js";
+import session from "express-session";
 
 dotenv.config();
 
@@ -33,6 +34,14 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.JWT_SECRET, // Use a strong secret
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
 
 // error handler middleware
 app.use(errorHandler);
