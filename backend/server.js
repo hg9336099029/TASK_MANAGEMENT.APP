@@ -15,7 +15,7 @@ const app = express();
 // ✅ Middleware - CORS setup
 const allowedOrigins = [
   //"http://localhost:3000", // ✅ Dev frontend
-  "https://task-management-app-git-main-hg9336099029s-projects.vercel.app", // ✅ Prod frontend
+  "https://task-management-app-git-main-hg9336099029s-projects.vercel.app",
 ];
 
 app.use(
