@@ -12,8 +12,8 @@ axios.defaults.withCredentials = true;
 export const UserContextProvider = ({ children }) => {
   const token = Cookies.get("token");
 
-  //const serverUrl = "https://task-management-app-2-0a9j.onrender.com/api/v1";
-  const serverUrl = "http://localhost:8000"; // or your production backend URL
+  const serverUrl = "https://task-management-app-2-0a9j.onrender.com/api/v1";
+  //const serverUrl = "http://localhost:8000"; // or your production backend URL
   const router = useRouter();
 
   const [user, setUser] = useState({});
