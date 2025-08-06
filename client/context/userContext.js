@@ -17,6 +17,7 @@ export const UserContextProvider = ({ children }) => {
 
   const token = Cookies.get("token");
   const serverUrl = "https://task-management-app-2-0a9j.onrender.com";
+  // const serverUrl = "http://localhost:8000";
 
   const router = useRouter();
 
@@ -72,10 +73,7 @@ export const UserContextProvider = ({ children }) => {
           password: userState.password,
         },
         {
-          withCredentials: true, 
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }, // send cookies to the server
+          withCredentials: true,
         }
       );
 

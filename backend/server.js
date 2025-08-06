@@ -15,6 +15,7 @@ const app = express();
 
 // middleware
 const allowedOrigins = [
+  "http://localhost:3000",
   process.env.CLIENT_URL,
   "https://task-management-app-git-main-hg9336099029s-projects.vercel.app",
 ];
