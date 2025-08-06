@@ -99,10 +99,6 @@ export const UserContextProvider = ({ children }) => {
       // coerce the string to boolean
       loggedIn = !!res.data;
       setLoading(false);
-
-      if (!loggedIn) {
-        router.push("/login");
-      }
     } catch (error) {
       console.log("Error getting user login status", error);
     }
