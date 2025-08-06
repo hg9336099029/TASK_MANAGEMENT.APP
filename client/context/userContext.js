@@ -14,6 +14,8 @@ const UserContext = React.createContext();
 axios.defaults.withCredentials = true;
 
 export const UserContextProvider = ({ children }) => {
+
+  const token = Cookies.get("token");
   const serverUrl = "https://task-management-app-2-0a9j.onrender.com";
 
   const router = useRouter();
@@ -70,7 +72,10 @@ export const UserContextProvider = ({ children }) => {
           password: userState.password,
         },
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -103,7 +108,10 @@ export const UserContextProvider = ({ children }) => {
     let loggedIn = false;
     try {
       const res = await axios.get(`${serverUrl}/api/v1/login-status`, {
-        withCredentials: true, // send cookies to the server
+        withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // coerce the string to boolean
@@ -120,7 +128,10 @@ export const UserContextProvider = ({ children }) => {
   const logoutUser = async () => {
     try {
       // const res = await axios.get(`${serverUrl}/api/v1/logout`, {
-      //   withCredentials: true, // send cookies to the server
+      // withCredentials: true, 
+        // headers: {
+          // Authorization: `Bearer ${token}`,
+        // }, // send cookies to the server
       // });
 
       Cookies.remove("token", {
@@ -145,7 +156,10 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await axios.get(`${serverUrl}/api/v1/user`, {
-        withCredentials: true, // send cookies to the server
+        withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
       });
 
       setUser((prevState) => {
@@ -170,7 +184,10 @@ export const UserContextProvider = ({ children }) => {
 
     try {
       const res = await axios.patch(`${serverUrl}/api/v1/user`, data, {
-        withCredentials: true, // send cookies to the server
+        withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
       });
 
       // update the user state
@@ -199,7 +216,10 @@ export const UserContextProvider = ({ children }) => {
         `${serverUrl}/api/v1/verify-email`,
         {},
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -220,7 +240,10 @@ export const UserContextProvider = ({ children }) => {
         `${serverUrl}/api/v1/verify-user/${token}`,
         {},
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -250,7 +273,10 @@ export const UserContextProvider = ({ children }) => {
           email,
         },
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -274,7 +300,10 @@ export const UserContextProvider = ({ children }) => {
           password,
         },
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -298,7 +327,10 @@ export const UserContextProvider = ({ children }) => {
         `${serverUrl}/api/v1/change-password`,
         { currentPassword, newPassword },
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -319,7 +351,10 @@ export const UserContextProvider = ({ children }) => {
         `${serverUrl}/api/v1/admin/users`,
         {},
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 
@@ -350,7 +385,10 @@ export const UserContextProvider = ({ children }) => {
         `${serverUrl}/api/v1/admin/users/${id}`,
         {},
         {
-          withCredentials: true, // send cookies to the server
+          withCredentials: true, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // send cookies to the server
         }
       );
 

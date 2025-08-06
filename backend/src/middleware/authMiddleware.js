@@ -5,7 +5,8 @@ import User from "../models/auth/UserModel.js";
 export const protect = asyncHandler(async (req, res, next) => {
   try {
     // check if user is logged in
-    const token = req.cookies.token;
+    // const token = req.cookies.token;
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
     if (!token) {
       // 401 Unauthorized
