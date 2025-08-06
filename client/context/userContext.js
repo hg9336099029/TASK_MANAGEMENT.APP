@@ -1,19 +1,17 @@
+"use client";
+
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
-import Cookies from "js-cookie";
 
 const UserContext = React.createContext();
 
-// Always include credentials for cross-origin cookies
+// Set global axios config
 axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "https://task-management-app-2-0a9j.onrender.com/api/v1";
 
 export const UserContextProvider = ({ children }) => {
-  const token = Cookies.get("token");
-
-  const serverUrl = "https://task-management-app-2-0a9j.onrender.com/api/v1";
-  //const serverUrl = "http://localhost:8000"; // or your production backend URL
   const router = useRouter();
 
   const [user, setUser] = useState({});
@@ -33,9 +31,8 @@ export const UserContextProvider = ({ children }) => {
     }
 
     try {
-      await axios.post(`${serverUrl}/api/v1/register`, userState);
+      await axios.post("/register", userState);
       toast.success("User registered successfully");
-
       setUserState({ name: "", email: "", password: "" });
       router.push("/login");
     } catch (error) {
@@ -46,22 +43,12 @@ export const UserContextProvider = ({ children }) => {
   const loginUser = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${serverUrl}/api/v1/login`,
-        {
-          email: userState.email,
-          password: userState.password,
-        }
-      );
-
-      Cookies.set("token", res.data.token, {
-        expires: 2,
-        secure: true,
-        sameSite: "None",
+      await axios.post("/login", {
+        email: userState.email,
+        password: userState.password,
       });
 
       toast.success("Logged in successfully");
-
       setUserState({ email: "", password: "" });
 
       await getUser();
@@ -73,13 +60,7 @@ export const UserContextProvider = ({ children }) => {
 
   const logoutUser = async () => {
     try {
-      // if backend handles logout with cookie clearing, call this:
-      // await axios.get(`${serverUrl}/api/v1/logout`);
-      Cookies.remove("token", {
-        secure: true,
-        sameSite: "None",
-      });
-
+      await axios.get("/logout");
       setUser({});
       toast.success("Logged out successfully");
       router.push("/login");
@@ -90,14 +71,9 @@ export const UserContextProvider = ({ children }) => {
 
   const userLoginStatus = async () => {
     try {
-      const res = await axios.get(`${serverUrl}/api/v1/login-status`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await axios.get("/login-status");
       return !!res.data;
-    } catch (error) {
+    } catch {
       return false;
     }
   };
@@ -105,14 +81,9 @@ export const UserContextProvider = ({ children }) => {
   const getUser = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${serverUrl}/api/v1/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await axios.get("/user");
       setUser(res.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch user");
     } finally {
       setLoading(false);
@@ -122,14 +93,8 @@ export const UserContextProvider = ({ children }) => {
   const updateUser = async (e, data) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const res = await axios.patch(`${serverUrl}/api/v1/user`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await axios.patch("/user", data);
       setUser(res.data);
       toast.success("Profile updated");
     } catch (error) {
@@ -142,17 +107,9 @@ export const UserContextProvider = ({ children }) => {
   const emailVerification = async () => {
     setLoading(true);
     try {
-      await axios.post(
-        `${serverUrl}/api/v1/verify-email`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post("/verify-email");
       toast.success("Verification email sent");
-    } catch (error) {
+    } catch {
       toast.error("Failed to send verification email");
     } finally {
       setLoading(false);
@@ -162,11 +119,11 @@ export const UserContextProvider = ({ children }) => {
   const verifyUser = async (verifyToken) => {
     setLoading(true);
     try {
-      await axios.post(`${serverUrl}/api/v1/verify-user/${verifyToken}`);
+      await axios.post(`/verify-user/${verifyToken}`);
       toast.success("Email verified");
       await getUser();
       router.push("/");
-    } catch (error) {
+    } catch {
       toast.error("Verification failed");
     } finally {
       setLoading(false);
@@ -176,9 +133,9 @@ export const UserContextProvider = ({ children }) => {
   const forgotPasswordEmail = async (email) => {
     setLoading(true);
     try {
-      await axios.post(`${serverUrl}/api/v1/forgot-password`, { email });
+      await axios.post("/forgot-password", { email });
       toast.success("Reset email sent");
-    } catch (error) {
+    } catch {
       toast.error("Failed to send email");
     } finally {
       setLoading(false);
@@ -188,12 +145,10 @@ export const UserContextProvider = ({ children }) => {
   const resetPassword = async (resetToken, password) => {
     setLoading(true);
     try {
-      await axios.post(`${serverUrl}/api/v1/reset-password/${resetToken}`, {
-        password,
-      });
+      await axios.post(`/reset-password/${resetToken}`, { password });
       toast.success("Password reset");
       router.push("/login");
-    } catch (error) {
+    } catch {
       toast.error("Reset failed");
     } finally {
       setLoading(false);
@@ -203,17 +158,12 @@ export const UserContextProvider = ({ children }) => {
   const changePassword = async (currentPassword, newPassword) => {
     setLoading(true);
     try {
-      await axios.patch(
-        `${serverUrl}/api/v1/change-password`,
-        { currentPassword, newPassword },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.patch("/change-password", {
+        currentPassword,
+        newPassword,
+      });
       toast.success("Password changed");
-    } catch (error) {
+    } catch {
       toast.error("Change failed");
     } finally {
       setLoading(false);
@@ -223,13 +173,9 @@ export const UserContextProvider = ({ children }) => {
   const getAllUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${serverUrl}/api/v1/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get("/admin/users");
       setAllUsers(res.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch users");
     } finally {
       setLoading(false);
@@ -239,15 +185,10 @@ export const UserContextProvider = ({ children }) => {
   const deleteUser = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${serverUrl}/api/v1/admin/users/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await axios.delete(`/admin/users/${id}`);
       toast.success("User deleted");
       getAllUsers();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete user");
     } finally {
       setLoading(false);
@@ -255,8 +196,8 @@ export const UserContextProvider = ({ children }) => {
   };
 
   const handlerUserInput = (name) => (e) => {
-    setUserState((prevState) => ({
-      ...prevState,
+    setUserState((prev) => ({
+      ...prev,
       [name]: e.target.value,
     }));
   };
@@ -268,7 +209,6 @@ export const UserContextProvider = ({ children }) => {
         await getUser();
       }
     };
-
     checkLoginAndGetUser();
   }, []);
 
