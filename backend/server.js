@@ -37,7 +37,7 @@ app.use(cookieParser());
 app.use(
   session({
     secret: process.env.JWT_SECRET, // Use a strong secret
-    resave: false,
+    resave: true,
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV === "production" },
   })
