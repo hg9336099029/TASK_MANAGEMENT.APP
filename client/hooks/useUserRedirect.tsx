@@ -1,4 +1,4 @@
-"use cleint";
+"use client";
 import { useUserContext } from "@/context/userContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -8,12 +8,10 @@ const useRedirect = (redirect: string) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user || !user._id) {
+    if (!loading && (!user || !user._id)) {
       router.push(redirect);
     }
-
-    // watch for changes to user, redirect, router
-  }, [user, redirect, router]);
+  }, [user, loading, redirect, router]);
 };
 
 export default useRedirect;
