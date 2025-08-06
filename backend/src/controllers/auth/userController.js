@@ -8,13 +8,21 @@ import crypto from "node:crypto";
 import hashToken from "../../helpers/hashToken.js";
 import sendEmail from "../../helpers/sendEmail.js";
 
+// --- Helper function for consistent cookie options ---
+const getCookieOptions = () => ({
+  path: "/",
+  httpOnly: true,
+  expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+  sameSite: "none",
+  secure: true,
+});
+
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
   //validation
   if (!name || !email || !password) {
-    // 400 Bad Request
-    res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   // check password length
@@ -43,13 +51,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const token = generateToken(user._id);
 
   // send back the user and token in the response to the client
-  res.cookie("token", token, {
-    path: "/",
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    sameSite: "none", // cross-site access --> allow all third-party cookies
-    secure: false,
-  });
+  res.cookie("token", token, getCookieOptions());
 
   if (user) {
     const { _id, name, email, role, photo, bio, isVerified } = user;
@@ -103,13 +105,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     const { _id, name, email, role, photo, bio, isVerified } = userExists;
 
     // set the token in the cookie
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      sameSite: "none", // cross-site access --> allow all third-party cookies
-      secure: true,
-    });
+    res.cookie("token", token, getCookieOptions());
 
     // send back the user and token in the response to the client
     res.status(200).json({
@@ -129,15 +125,11 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 // logout user
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-    path: "/",
-  });
-
-  res.status(200).json({ message: "User logged out" });
+    // To clear a cookie, the options must match how it was set
+    res.clearCookie("token", getCookieOptions());
+    res.status(200).json({ message: "User logged out" });
 });
+
 
 // get user
 export const getUser = asyncHandler(async (req, res) => {
@@ -187,16 +179,19 @@ export const userLoginStatus = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
-    // 401 Unauthorized
-    res.status(401).json({ message: "Not authorized, please login!" });
+    // No need to send an error, just confirm they are not logged in.
+    return res.json(false);
   }
   // verify the token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-  if (decoded) {
-    res.status(200).json(true);
-  } else {
-    res.status(401).json(false);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded) {
+      res.json(true);
+    } else {
+      res.json(false);
+    }
+  } catch (error) {
+    res.json(false);
   }
 });
 
@@ -411,3 +406,4 @@ export const changePassword = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Password could not be changed!" });
   }
 });
+
