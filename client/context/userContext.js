@@ -2,7 +2,12 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
-
+import Cookies from "js-cookie";
+// Cookies.set("sessionToken", result.token, {
+//           expires: 2,
+//           secure: true,
+//           sameSite: "None",
+//         });
 const UserContext = React.createContext();
 
 // set axios to include credentials with every request
@@ -69,6 +74,11 @@ export const UserContextProvider = ({ children }) => {
         }
       );
 
+      Cookies.set("token", res.data.token, {
+        expires: 2,
+        secure: true,
+        sameSite: "None",
+      });
       toast.success("User logged in successfully");
 
       // clear the form
@@ -109,8 +119,13 @@ export const UserContextProvider = ({ children }) => {
   // logout user
   const logoutUser = async () => {
     try {
-      const res = await axios.get(`${serverUrl}/api/v1/logout`, {
-        withCredentials: true, // send cookies to the server
+      // const res = await axios.get(`${serverUrl}/api/v1/logout`, {
+      //   withCredentials: true, // send cookies to the server
+      // });
+
+      Cookies.remove("token", {
+        secure: true,
+        sameSite: "None",
       });
 
       toast.success("User logged out successfully");
