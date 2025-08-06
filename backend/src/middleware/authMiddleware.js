@@ -7,10 +7,7 @@ export const protect = asyncHandler(async (req, res, next) => {
     // check if user is logged in
     const token = req.cookies.token;
 
-    if (!token) {
-      // 401 Unauthorized
-      return res.status(401).json({ message: "Not authorized, please login!" });
-    }
+    
 
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
