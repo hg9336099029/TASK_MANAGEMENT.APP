@@ -15,7 +15,7 @@ import {
 import {
   adminMiddleware,
   creatorMiddleware,
-  protect,
+  protectRoute,
 } from "../middleware/authMiddleware.js";
 import {
   deleteUser,
@@ -27,20 +27,20 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
-router.get("/user", protect, getUser);
-router.patch("/user", protect, updateUser);
+router.get("/user", protectRoute, getUser);
+router.patch("/user", protectRoute, updateUser);
 
 // admin route
-router.delete("/admin/users/:id", protect, adminMiddleware, deleteUser);
+router.delete("/admin/users/:id", protectRoute, adminMiddleware, deleteUser);
 
 // get all users
-router.get("/admin/users", protect, creatorMiddleware, getAllUsers);
+router.get("/admin/users",protectRoute, creatorMiddleware, getAllUsers);
 
 // login status
 router.get("/login-status", userLoginStatus);
 
 // email verification
-router.post("/verify-email", protect, verifyEmail);
+router.post("/verify-email",protectRoute, verifyEmail);
 
 // veriify user --> email verification
 router.post("/verify-user/:verificationToken", verifyUser);
@@ -52,6 +52,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:resetPasswordToken", resetPassword);
 
 // change password ---> user must be logged in
-router.patch("/change-password", protect, changePassword);
+router.patch("/change-password",protectRoute, changePassword);
 
 export default router;
