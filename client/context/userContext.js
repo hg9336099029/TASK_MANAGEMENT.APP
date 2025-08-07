@@ -10,7 +10,7 @@ const UserContext = React.createContext();
 // Set global axios config
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "https://task-management-app-2-0a9j.onrender.com/api/v1";
-//axios.defaults.baseURL = "http://localhost:8000/api/v1";
+axios.defaults.baseURL = "http://localhost:8000/api/v1";
 export const UserContextProvider = ({ children }) => {
   const router = useRouter();
 
