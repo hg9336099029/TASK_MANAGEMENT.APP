@@ -12,43 +12,35 @@ dotenv.config();
 const port = process.env.PORT || 8000;
 const app = express();
 
-// ✅ Middleware - CORS setup
 const allowedOrigins = [
-  //"http://localhost:3000", // ✅ Dev frontend
-  "https://task-management-app-git-main-hg9336099029s-projects.vercel.app", // ✅ Prod frontend
+  "http://localhost:3000",
+  process.env.CLIENT_URL, // e.g. https://your-vercel-app.vercel.app
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS: " + origin));
-      }
-    },
-    credentials: true, // ✅ Allow cookies to be sent
+    origin: allowedOrigins,
+    credentials: true,
   })
 );
 
-// ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 app.use(
   session({
     secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // send cookies only on HTTPS in prod
+      secure: true,    // required for cross-site cookies
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // important for cross-site
+      sameSite: "none", // required for cross-site cookies
     },
   })
 );
 
-// ✅ Routes
 const routeFiles = fs.readdirSync("./src/routes");
 routeFiles.forEach((file) => {
   import(`./src/routes/${file}`)
@@ -60,15 +52,13 @@ routeFiles.forEach((file) => {
     });
 });
 
-// ✅ Error handling middleware (after routes)
 app.use(errorHandler);
 
-// ✅ Start server
 const server = async () => {
   try {
     await connect();
     app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
+      console.log(`Server running on port ${port}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error.message);
